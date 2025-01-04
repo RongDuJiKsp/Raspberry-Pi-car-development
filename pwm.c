@@ -14,7 +14,7 @@
 void init() {
   wiringPiSetup();
   const int pins[6] = {POWPWML, POWIN1L, POWIN2L, POWPWMR, POWIN1R, POWIN2R};
-  pinModeSetter(OUTPUT, pins, len(pins));
+  pinset(pins, OUTPUT);
   softPwmCreate(POWPWML, 0, 100);
   softPwmCreate(POWPWMR, 0, 100);
 }
