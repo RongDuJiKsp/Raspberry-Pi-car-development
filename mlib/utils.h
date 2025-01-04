@@ -8,7 +8,12 @@ typedef float f32;
 typedef double f64;
 typedef char byte;
 typedef i32 menum;
+typedef int boolen;
+#define BTrue 1
+#define BFalse 0
+#include <stdlib.h>
 #include <wiringPi.h>
+#define New(type) ((type *)calloc(1, sizeof(type)))
 // len() 计算数组的长度
 #define len(x) (sizeof(x) / sizeof(*(x)))
 // bitvis()
