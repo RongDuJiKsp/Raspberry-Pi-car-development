@@ -10,7 +10,7 @@ typedef struct {
 Context *make_ctx() {
   Context *ctx = New(Context);
   ctx->mutex = PTHREAD_MUTEX_INITIALIZER;
-  ctx->canceld = false;
+  ctx->canceld = BFalse;
   return ctx;
 }
 
