@@ -6,6 +6,7 @@
 typedef struct {
   pthread_mutex_t mutex;
   boolen canceld;
+  boolen wait;
 } Context;
 Context *make_ctx() {
   Context *ctx = New(Context);
@@ -13,5 +14,11 @@ Context *make_ctx() {
   ctx->canceld = BFalse;
   return ctx;
 }
-
+#define SPINLOCK_LOCK_TIME 50
+#define SPINLOCK_LOCK(spinlock)                                                \
+  do {                                                                         \
+    while (spinlock) {                                                         \
+      delay(SPINLOCK_LOCK_TIME);                                               \
+    }                                                                          \
+  } while (0)
 #endif
