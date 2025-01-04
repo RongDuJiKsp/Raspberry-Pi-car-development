@@ -1,3 +1,4 @@
+#ifndef RedPin
 #define BeepPin 0
 #define POWPWML 1
 #define POWIN2L 2
@@ -8,3 +9,4 @@
 #define RedPin 21
 #define GreenPin 22
 #define BtnPin 24
+#endif
