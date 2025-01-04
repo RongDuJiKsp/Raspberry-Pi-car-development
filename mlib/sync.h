@@ -10,8 +10,9 @@ typedef struct {
 } Context;
 Context *make_ctx() {
   Context *ctx = New(Context);
-  ctx->mutex = PTHREAD_MUTEX_INITIALIZER;
+  ctx->mutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
   ctx->canceld = BFalse;
+  ctx->wait = BFalse;
   return ctx;
 }
 #define SPINLOCK_LOCK_TIME 50

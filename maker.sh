@@ -1,1 +1,1 @@
-gcc $1.c -o ./build/$1 -lwiringPi
+gcc $1.c -o ./build/$1 -lwiringPi -pthread

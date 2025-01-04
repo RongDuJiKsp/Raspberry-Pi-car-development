@@ -1,7 +1,7 @@
 #ifndef POW_DRIVE
 #define POW_DRIVE
-#include "mlib/pin.h"
-#include "mlib/utils.h"
+#include "pin.h"
+#include "utils.h"
 #include <softPwm.h>
 #include <wiringPi.h>
 #define MODEPOWSTOP 0

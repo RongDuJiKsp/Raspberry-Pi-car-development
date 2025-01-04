@@ -3,6 +3,7 @@
 #include "mlib/sync.h"
 #include "mlib/utils.h"
 #include <pthread.h>
+#include <softTone.h>
 #include <unistd.h>
 #define LIGHT_SWAP_MS 200
 typedef struct {
@@ -12,7 +13,7 @@ typedef struct {
 
 void init() {
   wiringPiSetup();
-  const menum pins[6] = {POWPWML, POWIN1L, POWIN2L,  POWPWMR,
+  const menum pins[8] = {POWPWML, POWIN1L, POWIN2L,  POWPWMR,
                          POWIN1R, POWIN2R, GreenPin, RedPin};
   pinset(pins, OUTPUT);
   softPwmCreate(POWPWML, 0, 100);
@@ -33,25 +34,46 @@ void *voice_thread(void *args) {
   for (int i = 0; !ctx->canceld; i = (i + 1) % len(beps)) {
     softToneWrite(BeepPin, beps[i].freq);
     delay(beps[i].delay_ms);
-    SPINLOCK_LOCK(ctx->wait);
   }
 }
 #define TURNDIRCL 1
 #define TURNDIRCR 0
-#define TURN90SPEED 30
-#define TURN90DURA 300
+
+#define TURN90SPEED 50
+#define TURN90DURA 580
 void turn_dirc90(int turn_dirc) {
   pow_drive(MODEPOWUP, turn_dirc ? DIRCPOWLEFT : DIRCPOWRIGHT, TURNMODEREV,
             TURN90SPEED, TURN90DURA, COMBONONE);
 }
+#define LINESPEED 50
+#define LINEDURA 1200
+void line() {
+  pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, LINESPEED, LINEDURA,
+            COMBONONE);
+}
+void stop() {
+  pow_drive(MODEPOWSTOP, DIRCPOWLINE, TURNMODEREV, 30, 5, COMBONONE);
+}
+void run(Context *ctx) {
+  // 1左 2右 3右 4左 5右 6右 7左 8右 9右 10左 11右
+  // 跑出来就是一个十字
+  const int dirc[11] = {TURNDIRCL, TURNDIRCR, TURNDIRCR, TURNDIRCL,
+                        TURNDIRCR, TURNDIRCR, TURNDIRCL, TURNDIRCR,
+                        TURNDIRCR, TURNDIRCL, TURNDIRCR};
+  for (int i = 0; i < len(dirc); i++) {
+    line();
+    ctx->wait = BTrue;
+    turn_dirc90(dirc[i]);
+    ctx->wait = BFalse;
+  }
+  line();
+}
 int main() {
-  // Context *ctx = make_ctx();
-  // pthread_t light_th, voice_th;
-  // pthread_create(&light_th, NULL, light_thread, (void *)ctx);
-  // pthread_create(&voice_th, NULL, voice_thread, (void *)ctx);
-  // pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, 30, 6000, COMBONONE);
-  // pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODEREV, 30, 300, COMBONONE);
-  // pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, 30, 3000, COMBONONE);
-  // pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, 30, 3000, COMBONONE);
-  // pow_drive(MODEPOWSTOP, DIRCPOWLINE, TURNMODEREV, 0, 6000, COMBONONE);
+  init();
+  Context *ctx = make_ctx();
+  pthread_t light_th, voice_th;
+  pthread_create(&light_th, NULL, light_thread, (void *)ctx);
+  pthread_create(&voice_th, NULL, voice_thread, (void *)ctx);
+  run(ctx);
+  stop();
 }
