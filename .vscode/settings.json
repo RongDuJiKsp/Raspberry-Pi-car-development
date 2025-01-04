@@ -3,6 +3,8 @@
         "wiringpi.h": "c",
         "softtone.h": "c",
         "stdio.h": "c",
-        "pin.h": "c"
+        "pin.h": "c",
+        "pow.h": "c",
+        "utils.h": "c"
     }
 }

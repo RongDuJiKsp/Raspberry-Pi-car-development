@@ -1,4 +1,5 @@
-#ifndef RedPin
+#ifndef PIN_DEFS
+#define PIN_DEFS
 #define BeepPin 0
 #define POWPWML 1
 #define POWIN2L 2

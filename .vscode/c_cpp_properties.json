@@ -5,10 +5,10 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/usr/lib/gcc/arm-linux-gnueabihf/8/include",
-                "/usr/local/include",
+                "/usr/local/include/**",
                 "/usr/lib/gcc/arm-linux-gnueabihf/8/include-fixed",
                 "/usr/include/arm-linux-gnueabihf",
-                "/usr/include"
+                "/usr/include/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
