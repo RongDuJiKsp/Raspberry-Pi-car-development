@@ -10,16 +10,16 @@
 #define DIRCPOWRIGHT 1
 #define TURNMODEREV 1
 #define TURNMODERUN 0
-#define COMBONONE 0
+#define COMBONONE 0.0
 void init() {
   wiringPiSetup();
-  const int pins[6] = {POWPWML, POWIN1L, POWIN2L, POWPWMR, POWIN1R, POWIN2R};
+  const menum pins[6] = {POWPWML, POWIN1L, POWIN2L, POWPWMR, POWIN1R, POWIN2R};
   pinset(pins, OUTPUT);
   softPwmCreate(POWPWML, 0, 100);
   softPwmCreate(POWPWMR, 0, 100);
 }
-void pow_drive(int mode, int dirc, int turnmode, int speed, int time_ms,
-               float turn_speed_combo) {
+void pow_drive(menum mode, menum dirc, menum turnmode, i32 speed, i32 time_ms,
+               f32 turn_speed_combo) {
   int pin2 = bitvis(mode, 1);
   int pin1 = bitvis(mode, 0);
   int revl = bitvis(dirc, 1);
