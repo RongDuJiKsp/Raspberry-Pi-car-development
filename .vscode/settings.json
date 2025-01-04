@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "wiringpi.h": "c",
+        "softtone.h": "c",
+        "stdio.h": "c"
+    }
+}
