@@ -32,21 +32,24 @@ void pow_drive(int mode, int dirc, int turnmode, int speed, int time_ms,
   digitalWrite(POWIN1R, irev(turnmode && revr, pin1));
   delay(time_ms);
 }
-
+void test();
 int main() {
   init();
   test();
 }
-int test() {
-  int dura = 2000;
-  int pow = 20;
-  pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, 30, dura, COMBONONE);
-  pow_drive(MODEPOWDOWN, DIRCPOWLINE, TURNMODEREV, 30, dura, COMBONONE);
-  pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODEREV, 40, 1000, COMBONONE);
-  pow_drive(MODEPOWUP, DIRCPOWRIGHT, TURNMODEREV, 40, 1000, COMBONONE);
-  pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODERUN, 36, dura, 0.4);
-  pow_drive(MODEPOWUP, DIRCPOWRIGHT, TURNMODERUN, 36, dura, 0.4);
-  pow_drive(MODEPOWDOWN, DIRCPOWLEFT, TURNMODERUN, 36, dura, 0.4);
-  pow_drive(MODEPOWDOWN, DIRCPOWRIGHT, TURNMODERUN, 36, dura, 0.4);
-  pow_drive(MODEPOWSTOP, DIRCPOWLINE, TURNMODEREV, 0, dura, COMBONONE);
+void test() {
+  float speedcomb = 1.2;
+  pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, 20 * speedcomb, 3000,
+            COMBONONE);
+  pow_drive(MODEPOWDOWN, DIRCPOWLINE, TURNMODEREV, 20 * speedcomb, 1000,
+            COMBONONE);
+  pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODEREV, 40 * speedcomb, 500,
+            COMBONONE);
+  pow_drive(MODEPOWUP, DIRCPOWRIGHT, TURNMODEREV, 40 * speedcomb, 500,
+            COMBONONE);
+  pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODERUN, 36 * speedcomb, 3000, 0.4);
+  pow_drive(MODEPOWUP, DIRCPOWRIGHT, TURNMODERUN, 36 * speedcomb, 3000, 0.4);
+  pow_drive(MODEPOWDOWN, DIRCPOWLEFT, TURNMODERUN, 36 * speedcomb, 1000, 0.4);
+  pow_drive(MODEPOWDOWN, DIRCPOWRIGHT, TURNMODERUN, 36 * speedcomb, 1000, 0.4);
+  pow_drive(MODEPOWSTOP, DIRCPOWLINE, TURNMODEREV, 0, 3000, COMBONONE);
 }
