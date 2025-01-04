@@ -1,0 +1,1 @@
+gcc $1.c -o ./build/$1 -lwiringPi&& ./build/$1
