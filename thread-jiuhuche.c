@@ -3,8 +3,10 @@
 #include "mlib/sync.h"
 #include "mlib/utils.h"
 #include <pthread.h>
+#include <signal.h>
 #include <softTone.h>
 #include <unistd.h>
+
 #define LIGHT_SWAP_MS 200
 typedef struct {
   int freq;
@@ -16,6 +18,7 @@ void init() {
   const menum pins[8] = {POWPWML, POWIN1L, POWIN2L,  POWPWMR,
                          POWIN1R, POWIN2R, GreenPin, RedPin};
   pinset(pins, OUTPUT);
+  softToneCreate(BeepPin);
   softPwmCreate(POWPWML, 0, 100);
   softPwmCreate(POWPWMR, 0, 100);
 }
@@ -30,7 +33,7 @@ void *light_thread(void *args) {
 }
 void *voice_thread(void *args) {
   Context *ctx = (Context *)args;
-  const beep beps[] = {{1000, 500}, {500, 500}};
+  const beep beps[] = {{1000, 300}, {500, 300}};
   for (int i = 0; !ctx->canceld; i = (i + 1) % len(beps)) {
     softToneWrite(BeepPin, beps[i].freq);
     delay(beps[i].delay_ms);
@@ -68,12 +71,17 @@ void run(Context *ctx) {
   }
   line();
 }
+void handle_sigint() {
+  stop();
+  exit(0);
+}
 int main() {
   init();
   Context *ctx = make_ctx();
   pthread_t light_th, voice_th;
   pthread_create(&light_th, NULL, light_thread, (void *)ctx);
   pthread_create(&voice_th, NULL, voice_thread, (void *)ctx);
+  signal(SIGINT, handle_sigint);
   run(ctx);
   stop();
 }
