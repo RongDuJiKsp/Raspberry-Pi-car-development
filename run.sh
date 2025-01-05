@@ -1,1 +1,1 @@
-gcc $1.c -o ./build/$1 -lwiringPi -lpthread  && ./build/$1 "${@:2}"
+gcc $1.c -o ./build/$1 -lwiringPi -lpthread  && ./build/$1  "${@:2}"
