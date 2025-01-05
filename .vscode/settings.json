@@ -5,6 +5,8 @@
         "stdio.h": "c",
         "pin.h": "c",
         "pow.h": "c",
-        "utils.h": "c"
+        "utils.h": "c",
+        "unistd.h": "c",
+        "signal.h": "c"
     }
 }
