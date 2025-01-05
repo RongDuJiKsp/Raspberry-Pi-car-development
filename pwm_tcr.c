@@ -33,10 +33,10 @@ byte sense_status() {
 #define P_delay 15
 #define P_transdelay 8
 #define P_trydelay 5
-#define P_tryspeed 22
+#define P_tryspeed 20
 #define P_turncombo 0.2
-#define P_speed 24
-#define P_fastspeed 38
+#define P_speed 22
+#define P_fastspeed 32
 #define P_close_tick 5
 void exec(menum sport) {
   switch (sport) {
