@@ -19,12 +19,14 @@ void pow_drive(menum mode, menum dirc, menum turnmode, i32 speed, i32 time_ms,
   int pin1 = bitvis(mode, 0);
   int revl = bitvis(dirc, 1);
   int revr = bitvis(dirc, 0);
-  softPwmWrite(POWPWML, icombo((!turnmode) && revl, speed, turn_speed_combo));
-  digitalWrite(POWIN2L, irev(turnmode && revl, pin2));
-  digitalWrite(POWIN1L, irev(turnmode && revl, pin1));
-  softPwmWrite(POWPWMR, icombo((!turnmode) && revr, speed, turn_speed_combo));
-  digitalWrite(POWIN2R, irev(turnmode && revr, pin2));
-  digitalWrite(POWIN1R, irev(turnmode && revr, pin1));
+  softPwmWrite(POWPWMLPin,
+               icombo((!turnmode) && revl, speed, turn_speed_combo));
+  digitalWrite(POWIN2LPin, irev(turnmode && revl, pin2));
+  digitalWrite(POWIN1LPin, irev(turnmode && revl, pin1));
+  softPwmWrite(POWPWMRPin,
+               icombo((!turnmode) && revr, speed, turn_speed_combo));
+  digitalWrite(POWIN2RPin, irev(turnmode && revr, pin2));
+  digitalWrite(POWIN1RPin, irev(turnmode && revr, pin1));
   delay(time_ms);
 }
 

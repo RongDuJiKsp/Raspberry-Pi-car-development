@@ -1,13 +1,16 @@
 #ifndef PIN_DEFS
 #define PIN_DEFS
 #define BeepPin 0
-#define POWPWML 1
-#define POWIN2L 2
-#define POWIN1L 3
-#define POWPWMR 4
-#define POWIN2R 5
-#define POWIN1R 6
+#define POWPWMLPin 1
+#define POWIN2LPin 2
+#define POWIN1LPin 3
+#define POWPWMRPin 4
+#define POWIN2RPin 5
+#define POWIN1RPin 6
+#define BtnPin 7
 #define RedPin 21
 #define GreenPin 22
-#define BtnPin 24
+#define LeftTCRPin 23
+#define MidTCRPin 24
+#define RightTCRPin 25
 #endif

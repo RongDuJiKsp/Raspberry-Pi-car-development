@@ -15,12 +15,12 @@ typedef struct {
 
 void init() {
   wiringPiSetup();
-  const menum pins[8] = {POWPWML, POWIN1L, POWIN2L,  POWPWMR,
-                         POWIN1R, POWIN2R, GreenPin, RedPin};
+  const menum pins[8] = {POWPWMLPin, POWIN1LPin, POWIN2LPin, POWPWMRPin,
+                         POWIN1RPin, POWIN2RPin, GreenPin,   RedPin};
   pinset(pins, OUTPUT);
   softToneCreate(BeepPin);
-  softPwmCreate(POWPWML, 0, 100);
-  softPwmCreate(POWPWMR, 0, 100);
+  softPwmCreate(POWPWMLPin, 0, 100);
+  softPwmCreate(POWPWMRPin, 0, 100);
 }
 void *light_thread(void *args) {
   Context *ctx = (Context *)args;

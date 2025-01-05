@@ -1,10 +1,11 @@
 #include "mlib/pow.h"
 void init() {
   wiringPiSetup();
-  const menum pins[6] = {POWPWML, POWIN1L, POWIN2L, POWPWMR, POWIN1R, POWIN2R};
+  const menum pins[6] = {POWPWMLPin, POWIN1LPin, POWIN2LPin,
+                         POWPWMRPin, POWIN1RPin, POWIN2RPin};
   pinset(pins, OUTPUT);
-  softPwmCreate(POWPWML, 0, 100);
-  softPwmCreate(POWPWMR, 0, 100);
+  softPwmCreate(POWPWMLPin, 0, 100);
+  softPwmCreate(POWPWMRPin, 0, 100);
 }
 
 void test();
