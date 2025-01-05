@@ -18,6 +18,8 @@ void init() {
 #define StatusLeft 6
 // Low Heigh Heigh 应该右转
 #define StatusRight 3
+#define LeftBit 4
+#define RightBit 1
 byte sense_status() {
   // 检测到黑线为高电平
   return ((digitalRead(LeftTCRPin) & 1) << 2) |
@@ -25,8 +27,8 @@ byte sense_status() {
          ((digitalRead(RightTCRPin) & 1) << 0);
 }
 #define P_delay 10
-#define P_transdelay 260
-#define P_turncombo 0.4
+#define P_transdelay 10
+#define P_turncombo 0.2
 #define P_speed 30
 void mainloop(int dbg) {
   while (1) {
@@ -39,12 +41,12 @@ void mainloop(int dbg) {
       delay(30);
       continue;
     }
-    if (status == StatusLeft) {
-      pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODERUN, P_speed, P_transdelay,
-                P_turncombo);
-    } else if (status == StatusLeft) {
-      pow_drive(MODEPOWUP, DIRCPOWRIGHT, TURNMODERUN, P_speed, P_transdelay,
-                P_turncombo);
+    if (status & LeftBit) {
+      pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODEREV, P_speed, P_transdelay,
+                COMBONONE);
+    } else if (status & RightBit) {
+      pow_drive(MODEPOWUP, DIRCPOWRIGHT, TURNMODEREV, P_speed, P_transdelay,
+                COMBONONE);
     } else {
       pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, P_speed, P_delay,
                 COMBONONE);
