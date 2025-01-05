@@ -4,6 +4,17 @@
 #include "mlib/utils.h"
 #include <signal.h>
 #include <stdio.h>
+#define CtxTurnLeft 1
+#define CtxTrunRight 2
+#define CtxLine 0
+typedef struct {
+  menum sport;
+  int reset_tick;
+} cup_ctx;
+void updatectx(cup_ctx *ctx, menum sport) {
+  ctx->sport = sport;
+  ctx->reset_tick = 0;
+}
 void init() {
   wiringPiSetup();
   const menum sense[3] = {LeftTCRPin, MidTCRPin, RightTCRPin};
@@ -14,11 +25,8 @@ void init() {
   softPwmCreate(POWPWMLPin, 0, 100);
   softPwmCreate(POWPWMRPin, 0, 100);
 }
-// Heigh Heigh Low  应该左转
-#define StatusLeft 6
-// Low Heigh Heigh 应该右转
-#define StatusRight 3
 #define LeftBit 4
+#define MidBit 2
 #define RightBit 1
 byte sense_status() {
   // 检测到黑线为高电平
@@ -28,9 +36,67 @@ byte sense_status() {
 }
 #define P_delay 10
 #define P_transdelay 10
+#define P_trydelay 5
 #define P_turncombo 0.2
-#define P_speed 30
+#define P_speed 28
+#define P_fastspeed 38
+#define P_close_tick 5
+void exec(menum sport) {
+  switch (sport) {
+  case CtxLine:
+    pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, P_speed, P_trydelay,
+              COMBONONE);
+    break;
+  case CtxTurnLeft:
+    pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODEREV, P_speed, P_trydelay,
+              COMBONONE);
+    break;
+  case CtxTrunRight:
+    pow_drive(MODEPOWUP, DIRCPOWRIGHT, TURNMODEREV, P_speed, P_trydelay,
+              COMBONONE);
+    break;
+  }
+}
+void cpu(cup_ctx *ctx, byte status) {
+  if (ctx->reset_tick <= 3) {
+    exec(ctx->sport);
+    ctx->reset_tick += 1;
+    return;
+  }
+  if (status == 2) { // 010
+    updatectx(ctx, CtxLine);
+    pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, P_fastspeed, P_delay,
+              COMBONONE);
+  } else if (status & MidBit) {
+    if (status & LeftBit) {
+      pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODEREV, P_speed, P_transdelay,
+                COMBONONE);
+      ctx->sport = CtxTurnLeft;
+      ctx->reset_tick = -P_close_tick;
+    } else if (status & RightBit) {
+      pow_drive(MODEPOWUP, DIRCPOWRIGHT, TURNMODEREV, P_speed, P_transdelay,
+                COMBONONE);
+      ctx->sport = CtxTrunRight;
+      ctx->reset_tick = -P_close_tick;
+    }
+  } else if (status == 5 || status == 7) {
+    exec(ctx->sport);
+    ctx->reset_tick += 1;
+  } else if (status & LeftBit) {
+    pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODEREV, P_speed, P_transdelay,
+              COMBONONE);
+    updatectx(ctx, CtxTurnLeft);
+  } else if (status & RightBit) {
+    pow_drive(MODEPOWUP, DIRCPOWRIGHT, TURNMODEREV, P_speed, P_transdelay,
+              COMBONONE);
+    updatectx(ctx, CtxTrunRight);
+  } else {
+    pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, P_speed, P_delay, COMBONONE);
+    ctx->reset_tick += 1;
+  }
+}
 void mainloop(int dbg) {
+  cup_ctx *ctx = New(cup_ctx);
   while (1) {
     byte status = sense_status();
     digitalWrite(GreenPin, (status & 4));
@@ -41,16 +107,7 @@ void mainloop(int dbg) {
       delay(30);
       continue;
     }
-    if (status & LeftBit) {
-      pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODEREV, P_speed, P_transdelay,
-                COMBONONE);
-    } else if (status & RightBit) {
-      pow_drive(MODEPOWUP, DIRCPOWRIGHT, TURNMODEREV, P_speed, P_transdelay,
-                COMBONONE);
-    } else {
-      pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, P_speed, P_delay,
-                COMBONONE);
-    }
+    cpu(ctx, status);
   }
 }
 void handle_sigint() {
