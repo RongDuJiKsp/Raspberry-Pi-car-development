@@ -57,8 +57,8 @@ void handle_sigint() {
   pow_drive(MODEPOWSTOP, DIRCPOWLINE, TURNMODERUN, P_speed, P_delay, COMBONONE);
   exit(0);
 }
-int main() {
+int main(int argc, char **argv) {
   init();
   signal(SIGINT, handle_sigint);
-  mainloop(BFalse);
+  mainloop(argc > 1);
 }
