@@ -10,7 +10,7 @@
 #define BtnPin 7
 #define RedPin 21
 #define GreenPin 22
-#define LeftTCRPin 23
+#define LeftTCRPin 25
 #define MidTCRPin 24
-#define RightTCRPin 25
+#define RightTCRPin 23
 #endif

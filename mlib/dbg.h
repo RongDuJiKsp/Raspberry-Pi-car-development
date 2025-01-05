@@ -1,0 +1,1 @@
+#define toStringBool(x) ((x) ? "Heigh" : "Low")
