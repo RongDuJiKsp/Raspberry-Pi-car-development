@@ -29,21 +29,16 @@ void mainloop() {
     byte status = sense_status();
     digitalWrite(GreenPin, status & 1);
     digitalWrite(RedPin, status & 4);
-    int tdelay = 0;
     if (status == StatusLeft) {
       pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODERUN, P_speed, P_transdelay,
                 P_turncombo);
-      tdelay = P_transdelay;
     } else if (status == StatusRight) {
       pow_drive(MODEPOWUP, DIRCPOWRIGHT, TURNMODERUN, P_speed, P_transdelay,
                 P_turncombo);
-      tdelay = P_transdelay;
     } else {
       pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, P_speed, P_delay,
                 COMBONONE);
-      tdelay = P_delay;
     }
-    delay(tdelay);
   }
 }
 void handle_sigint() {
