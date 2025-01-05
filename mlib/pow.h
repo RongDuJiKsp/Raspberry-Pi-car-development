@@ -12,7 +12,7 @@
 #define DIRCPOWRIGHT 1
 #define TURNMODEREV 1
 #define TURNMODERUN 0
-#define COMBONONE 0.0
+#define COMBONONE 1.0
 void pow_drive(menum mode, menum dirc, menum turnmode, i32 speed, i32 time_ms,
                f32 turn_speed_combo) {
   int pin2 = bitvis(mode, 1);
