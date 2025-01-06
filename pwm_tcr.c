@@ -38,13 +38,6 @@ byte sense_status() {
 #define P_speed 29
 #define P_fastspeed 34
 #define P_close_tick 5
-menum shouldCtx(byte status) {
-  if ((status & LeftBit) && (!(status & RightBit)))
-    return CtxTurnLeft;
-  if ((!(status & LeftBit)) && (status & RightBit))
-    return CtxTrunRight;
-  return CtxLine;
-}
 void exec(menum sport) {
   switch (sport) {
   case CtxLine:
@@ -65,10 +58,10 @@ void cpu(cup_ctx *ctx, byte status) {
   if (status == 0) {
     exec(ctx->turning);
     ctx->sport = ctx->turning;
-  } else if (shouldCtx(status) == CtxTurnLeft && ctx->sport == CtxLine) {
+  } else if (status & LeftBit && ctx->sport == CtxLine) {
     ctx->turning = CtxTurnLeft;
     exec(ctx->sport);
-  } else if (shouldCtx(status) == CtxTrunRight && ctx->sport == CtxLine) {
+  } else if (status && RightBit && ctx->sport == CtxLine) {
     ctx->turning = CtxTrunRight;
     exec(ctx->sport);
   } else if (status == 2 && ctx->sport != CtxLine) {
