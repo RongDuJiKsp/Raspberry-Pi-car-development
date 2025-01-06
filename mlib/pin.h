@@ -13,6 +13,6 @@
 #define LeftTCRPin 25
 #define MidTCRPin 24
 #define RightTCRPin 23
-#define LeftOAPin 27
-#define RightOAPin 26
+#define LeftOAPin 26
+#define RightOAPin 27
 #endif
