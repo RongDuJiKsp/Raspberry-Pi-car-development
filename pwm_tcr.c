@@ -30,12 +30,12 @@ byte sense_status() {
          ((digitalRead(MidTCRPin) & 1) << 1) |
          ((digitalRead(RightTCRPin) & 1) << 0);
 }
-#define P_delay 15
-#define P_transdelay 8
-#define P_trydelay 5
-#define P_tryspeed 24
+#define P_delay 8
+#define P_transdelay 5
+#define P_trydelay 3
+#define P_tryspeed 25
 #define P_turncombo 0.2
-#define P_speed 28
+#define P_speed 29
 #define P_fastspeed 34
 #define P_close_tick 5
 menum shouldCtx(byte status) {
