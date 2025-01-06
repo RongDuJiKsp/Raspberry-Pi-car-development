@@ -33,11 +33,18 @@ byte sense_status() {
 #define P_delay 15
 #define P_transdelay 8
 #define P_trydelay 5
-#define P_tryspeed 20
+#define P_tryspeed 24
 #define P_turncombo 0.2
-#define P_speed 22
-#define P_fastspeed 32
+#define P_speed 28
+#define P_fastspeed 34
 #define P_close_tick 5
+menum shouldCtx(byte status) {
+  if ((status & LeftBit) && (!(status & RightBit)))
+    return CtxTurnLeft;
+  if ((!(status & LeftBit)) && (status & RightBit))
+    return CtxTrunRight;
+  return CtxLine;
+}
 void exec(menum sport) {
   switch (sport) {
   case CtxLine:
@@ -55,22 +62,20 @@ void exec(menum sport) {
   }
 }
 void cpu(cup_ctx *ctx, byte status) {
-  if (status == 2) {
+  if (status == 0) {
+    exec(ctx->turning);
+    ctx->sport = ctx->turning;
+  } else if (shouldCtx(status) == CtxTurnLeft && ctx->sport == CtxLine) {
+    ctx->turning = CtxTurnLeft;
+    exec(ctx->sport);
+  } else if (shouldCtx(status) == CtxTrunRight && ctx->sport == CtxLine) {
+    ctx->turning = CtxTrunRight;
+    exec(ctx->sport);
+  } else if (status == 2 && ctx->sport != CtxLine) {
     pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, P_fastspeed, P_delay,
               COMBONONE);
     ctx->sport = CtxLine;
     ctx->turning = CtxLine;
-  } else if ((status & LeftBit) && !(status & RightBit) &&
-             ctx->sport == CtxLine) {
-    ctx->turning = CtxTurnLeft;
-    exec(ctx->sport);
-  } else if (!(status & LeftBit) && (status & RightBit) &&
-             ctx->sport == CtxLine) {
-    ctx->turning = CtxTrunRight;
-    exec(ctx->sport);
-  } else if (status == 0) {
-    exec(ctx->turning);
-    ctx->sport = ctx->turning;
   } else {
     exec(ctx->sport);
   }
