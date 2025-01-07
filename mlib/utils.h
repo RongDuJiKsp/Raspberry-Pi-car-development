@@ -26,4 +26,13 @@ typedef int boolen;
       pinMode((pins)[i], (mode));                                              \
     }                                                                          \
   } while (0)
+#define debounce(cond, lim, exec)                                              \
+  do {                                                                         \
+    if ((cond) < (lim)) {                                                      \
+      (cond)++;                                                                \
+    } else {                                                                   \
+      (cond) = 0;                                                              \
+      exec                                                                     \
+    }                                                                          \
+  } while (0)
 #endif

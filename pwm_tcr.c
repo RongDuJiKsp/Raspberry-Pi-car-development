@@ -10,8 +10,17 @@
 typedef struct {
   menum sport;
   menum turning;
-  int unhead_tick;
+  int debounce_line;
+  int debounce_l;
+  int debounce_r;
+  int debounce_unhead;
 } cup_ctx;
+void clean_debounce(cup_ctx *ctx) {
+  ctx->debounce_l = 0;
+  ctx->debounce_r = 0;
+  ctx->debounce_line = 0;
+  ctx->debounce_unhead = 0;
+}
 void init() {
   wiringPiSetup();
   const menum sense[3] = {LeftTCRPin, MidTCRPin, RightTCRPin};
@@ -34,12 +43,15 @@ byte sense_status() {
 #define P_delay 8
 #define P_transdelay 5
 #define P_trydelay 3
+#define P_trytranspeed 30
 #define P_tryspeed 25
-#define P_turncombo 0.2
 #define P_speed 29
 #define P_fastspeed 34
-#define P_close_tick 5
-#define P_unhead_max_tick 120
+#define P_unhead_tick 25
+#define P_trans_tick 7
+#define P_line_tick 16
+#define P_need_trans_tick 7
+
 menum shouldCtx(byte status) {
   if ((status & LeftBit) && (!(status & RightBit)))
     return CtxTurnLeft;
@@ -54,11 +66,11 @@ void exec(menum sport) {
               COMBONONE);
     break;
   case CtxTurnLeft:
-    pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODEREV, P_tryspeed, P_trydelay,
+    pow_drive(MODEPOWUP, DIRCPOWLEFT, TURNMODEREV, P_trytranspeed, P_trydelay,
               COMBONONE);
     break;
   case CtxTrunRight:
-    pow_drive(MODEPOWUP, DIRCPOWRIGHT, TURNMODEREV, P_tryspeed, P_trydelay,
+    pow_drive(MODEPOWUP, DIRCPOWRIGHT, TURNMODEREV, P_trytranspeed, P_trydelay,
               COMBONONE);
     break;
   }
@@ -66,28 +78,47 @@ void exec(menum sport) {
 void cpu(cup_ctx *ctx, byte status) {
   if (status == 0) {
     if (ctx->turning == CtxLine) {
-      ctx->unhead_tick += 1;
+      ctx->debounce_unhead += 1;
+      exec(ctx->turning);
+      return;
     }
-    if (ctx->unhead_tick > P_unhead_max_tick) {
-      ctx->turning = CtxTurnLeft;
-      ctx->unhead_tick = 0;
-    }
+    debounce(ctx->debounce_unhead, P_unhead_tick,
+             { ctx->sport = ctx->turning; });
     exec(ctx->turning);
-    ctx->sport = ctx->turning;
+
   } else if (shouldCtx(status) == CtxTurnLeft && ctx->sport == CtxLine) {
-    ctx->turning = CtxTurnLeft;
-    ctx->unhead_tick = 0;
+    debounce(ctx->debounce_l, P_trans_tick, {
+      ctx->turning = CtxTurnLeft;
+      if (status == 6) {
+        ctx->debounce_unhead = 0;
+      }
+      debounce(ctx->debounce_unhead, P_need_trans_tick, {
+        ctx->sport = ctx->turning;
+        clean_debounce(ctx);
+      });
+    });
     exec(ctx->sport);
   } else if (shouldCtx(status) == CtxTrunRight && ctx->sport == CtxLine) {
-    ctx->turning = CtxTrunRight;
-    ctx->unhead_tick = 0;
+    debounce(ctx->debounce_r, P_trans_tick, {
+      ctx->turning = CtxTrunRight;
+      if (status == 3) {
+        ctx->debounce_unhead = 0;
+      }
+      debounce(ctx->debounce_unhead, P_need_trans_tick, {
+        ctx->sport = ctx->turning;
+        clean_debounce(ctx);
+      });
+    });
     exec(ctx->sport);
   } else if (status == 2 && ctx->sport != CtxLine) {
-    pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, P_fastspeed, P_delay,
-              COMBONONE);
-    ctx->sport = CtxLine;
-    ctx->turning = CtxLine;
-    ctx->unhead_tick = 0;
+    debounce(ctx->debounce_line, P_line_tick, {
+      pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, P_fastspeed, P_delay,
+                COMBONONE);
+      ctx->sport = CtxLine;
+      ctx->turning = CtxLine;
+      clean_debounce(ctx);
+    });
+    exec(ctx->sport);
   } else {
     exec(ctx->sport);
   }
@@ -96,11 +127,14 @@ void mainloop(int dbg) {
   cup_ctx *ctx = New(cup_ctx);
   ctx->sport = CtxLine;
   ctx->turning = CtxLine;
-  ctx->unhead_tick = 0;
   while (1) {
     byte status = sense_status();
     digitalWrite(GreenPin, (status & 4));
     digitalWrite(RedPin, (status & 1));
+    if (status & 2) {
+      digitalWrite(GreenPin, 1);
+      digitalWrite(RedPin, 1);
+    }
     if (dbg) {
       printf("%s%s%s\n", toStringBool(status & 4), toStringBool(status & 2),
              toStringBool(status & 1));
