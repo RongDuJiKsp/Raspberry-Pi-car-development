@@ -15,4 +15,6 @@
 #define RightTCRPin 23
 #define LeftOAPin 26
 #define RightOAPin 27
+#define TrigSend 28
+#define TrigRerv 29
 #endif
