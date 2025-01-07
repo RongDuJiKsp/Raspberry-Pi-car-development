@@ -10,6 +10,7 @@
 typedef struct {
   menum sport;
   menum turning;
+  int unhead_tick;
 } cup_ctx;
 void init() {
   wiringPiSetup();
@@ -38,6 +39,7 @@ byte sense_status() {
 #define P_speed 29
 #define P_fastspeed 34
 #define P_close_tick 5
+#define P_unhead_max_tick 120
 menum shouldCtx(byte status) {
   if ((status & LeftBit) && (!(status & RightBit)))
     return CtxTurnLeft;
@@ -63,19 +65,29 @@ void exec(menum sport) {
 }
 void cpu(cup_ctx *ctx, byte status) {
   if (status == 0) {
+    if (ctx->turning == CtxLine) {
+      ctx->unhead_tick += 1;
+    }
+    if (ctx->unhead_tick > P_unhead_max_tick) {
+      ctx->turning = CtxTurnLeft;
+      ctx->unhead_tick = 0;
+    }
     exec(ctx->turning);
     ctx->sport = ctx->turning;
   } else if (shouldCtx(status) == CtxTurnLeft && ctx->sport == CtxLine) {
     ctx->turning = CtxTurnLeft;
+    ctx->unhead_tick = 0;
     exec(ctx->sport);
   } else if (shouldCtx(status) == CtxTrunRight && ctx->sport == CtxLine) {
     ctx->turning = CtxTrunRight;
+    ctx->unhead_tick = 0;
     exec(ctx->sport);
   } else if (status == 2 && ctx->sport != CtxLine) {
     pow_drive(MODEPOWUP, DIRCPOWLINE, TURNMODEREV, P_fastspeed, P_delay,
               COMBONONE);
     ctx->sport = CtxLine;
     ctx->turning = CtxLine;
+    ctx->unhead_tick = 0;
   } else {
     exec(ctx->sport);
   }
@@ -84,6 +96,7 @@ void mainloop(int dbg) {
   cup_ctx *ctx = New(cup_ctx);
   ctx->sport = CtxLine;
   ctx->turning = CtxLine;
+  ctx->unhead_tick = 0;
   while (1) {
     byte status = sense_status();
     digitalWrite(GreenPin, (status & 4));
