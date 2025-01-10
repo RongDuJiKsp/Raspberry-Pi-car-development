@@ -43,10 +43,10 @@ byte sense_status() {
 #define P_delay 8
 #define P_transdelay 5
 #define P_trydelay 3
-#define P_trytranspeed 36
-#define P_tryspeed 38
-#define P_speed 47
-#define P_fastspeed 52
+#define P_trytranspeed 30
+#define P_tryspeed 25
+#define P_speed 29
+#define P_fastspeed 34
 #define P_unhead_tick 25
 #define P_trans_tick 7
 #define P_line_tick 16
